@@ -9,7 +9,7 @@ use Net::Printer;
 use Template;
 use Params::Validate qw/validate SCALAR UNDEF OBJECT HASHREF ARRAYREF CODEREF/;
 
-our $VERSION = '1.0';
+our $VERSION = '1.01';
 
 #-------------------------------------------------------------------------------
 # Constants
@@ -56,7 +56,7 @@ sub new {
         },
         port => { 
             type     => SCALAR,
-            optional => 1,      # Net::FTP et Net::Printer define their own default values
+            optional => 1,      # Net::FTP and Net::Printer define their own default values
             depends  => [ 'server' ],
         },
         user => { 
@@ -234,6 +234,7 @@ sub _print_to_lpr {
 
     # sends the output data to the print queue
     my $res = $printer->printstring($self->{output_data});
+    $res or croak "Error while printing on $self->{server} port $self->{port} using LPR: " . $printer->printerror() . "\n";
 }
 
 #-------------------------------------------------------------------------------
@@ -266,7 +267,7 @@ Template-based label management
         check_syntax  => \&my_check_sub,
         print_mode    => "CON",
     );
-    $print_con or croak "Erreur lors de la création de l'imprimante";
+    $print_con or croak "Error while creating the printer object";
     $print_con->printout(
         vars => {
             my_var_1 => 'My var 1',
@@ -282,7 +283,7 @@ Template-based label management
         print_mode    => "FTP",
         server        => "MyPrintServer",
     );
-    $print_ftp or croak "Erreur lors de la création de l'imprimante";
+    $print_ftp or croak "Error while creating the printer object";
     $print_ftp->printout(
         vars => {
             my_var_1 => 'My var 1',
@@ -298,7 +299,7 @@ Template-based label management
         print_mode    => "LPR",
         server        => "MyPrintServer",
     );
-    $print_lpr or croak "Erreur lors de la création de l'imprimante";
+    $print_lpr or croak "Error while creating the printer object";
     $print_lpr->printout(
         vars => {
             my_var_1 => 'My var 1',
@@ -314,7 +315,7 @@ Template-based label management
         print_mode    => "FILE",
         output_file   => "MyPath/MyFile.txt",
     );
-    $print_file or croak "Erreur lors de la création de l'imprimante";
+    $print_file or croak "Error while creating the printer object";
     $print_file->printout(
         vars => {
             my_var_1 => 'My var 1',
